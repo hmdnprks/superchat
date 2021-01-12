@@ -1,12 +1,12 @@
 import './App.scss';
-
+import dayjs from 'dayjs';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 firebase.initializeApp({
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -55,6 +55,7 @@ function SignOut() {
 }
 
 function ChatRoom() {
+  const dispRef = useRef();
   const messagesRef = firestore.collection('messages');
   const query = messagesRef.orderBy('createdAt').limit(25);
 
@@ -73,12 +74,14 @@ function ChatRoom() {
     });
 
     setFormValue('')
+    dispRef.current.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
     <>
       <main>
         {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
+        <div ref={dispRef}></div>
       </main>
       <form onSubmit={sendMessage}>
         <input value={formValue} onChange={e => setFormValue(e.target.value)} />
@@ -89,14 +92,14 @@ function ChatRoom() {
 }
 
 function ChatMessage(props) {
-  const { text, uid, photoURL } = props.message;
-
+  const { text, uid, photoURL, createdAt } = props.message;
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
   return (
       <div className={`message ${messageClass}`}>
-        <img src={photoURL} alt={uid} />
+        <img src={photoURL || 'https://i.pravatar.cc/150?u=a042581f4e29026704d'} alt={uid} />
         <p>{text}</p>
+        <span className="timestamp">{dayjs(createdAt.toDate()).format('HH:mm')}</span>
       </div>
   )
 }
