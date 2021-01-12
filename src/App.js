@@ -28,7 +28,8 @@ function App() {
   return (
     <div className="App">
       <header>
-
+        <h1>Superchat 📥💬</h1>
+        <SignOut />
       </header>
       <section>
         {user ? <ChatRoom /> : <SignIn />}
@@ -49,7 +50,7 @@ function SignIn() {
 
 function SignOut() {
   return auth.currentUser && (
-    <button onClick={() => auth.signOut()}>Sign Out</button>
+    <button className="sign-out" onClick={() => auth.signOut()}>Sign Out</button>
   )
 }
 
@@ -76,9 +77,9 @@ function ChatRoom() {
 
   return (
     <>
-      <div>
+      <main>
         {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
-      </div>
+      </main>
       <form onSubmit={sendMessage}>
         <input value={formValue} onChange={e => setFormValue(e.target.value)} />
         <button type="submit">📤</button>
@@ -93,7 +94,7 @@ function ChatMessage(props) {
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
   return (
-      <div className={`messages ${messageClass}`}>
+      <div className={`message ${messageClass}`}>
         <img src={photoURL} alt={uid} />
         <p>{text}</p>
       </div>
