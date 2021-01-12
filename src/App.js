@@ -81,11 +81,11 @@ function ChatRoom() {
     <>
       <main>
         {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
-        <div ref={dispRef}></div>
+        <span ref={dispRef}></span>
       </main>
       <form onSubmit={sendMessage}>
         <input value={formValue} onChange={e => setFormValue(e.target.value)} />
-        <button type="submit">📤</button>
+        <button type="submit" disabled={!formValue}>📤</button>
       </form>
     </>
   )
@@ -99,7 +99,7 @@ function ChatMessage(props) {
       <div className={`message ${messageClass}`}>
         <img src={photoURL || 'https://i.pravatar.cc/150?u=a042581f4e29026704d'} alt={uid} />
         <p>{text}</p>
-        <span className="timestamp">{dayjs(createdAt.toDate()).format('HH:mm')}</span>
+        <span className="timestamp">{dayjs(createdAt?.toDate() ?? new Date()).format('HH:mm')}</span>
       </div>
   )
 }
