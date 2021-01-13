@@ -1,39 +1,32 @@
 const functions = require("firebase-functions");
+const badwords = require("./badwords.json");
 const Filter = require("bad-words");
 
 const admin = require("firebase-admin");
 admin.initializeApp();
 
-const db = admin.firestore();
+// const db = admin.firestore();
 
 exports.detectEvilUsers = functions.firestore
     .document("messages/{msgId}")
     .onCreate(async (doc, ctx) => {
       const filter = new Filter();
-      const {text, uid} = doc.data();
+      filter.addWords(...badwords.data);
+      const {text} = doc.data();
 
       if (filter.isProfane(text)) {
         const cleaned = filter.clean(text);
-        await doc.ref.update({text: `Oops 🤐 I got banned for saying...
-          ${cleaned}`});
+        await doc.ref.update({text: cleaned});
 
-        await db.collection("banned").doc(uid).set({});
+        // await db.collection("banned").doc(uid).set({});
       }
 
-      const userRef = db.collection("users").doc(uid);
-      const userData = (await userRef.get()).data();
+      // const userRef = db.collection("users").doc(uid);
+      // const userData = (await userRef.get()).data();
 
-      if (userData.msgCount >= 7) {
-        await db.collection("banned").doc(uid).set({});
-      } else {
-        await userRef.set({msgCount: (userData.msgCount || 0) + 1});
-      }
+      // if (userData.msgCount >= 7) {
+      //   await db.collection("banned").doc(uid).set({});
+      // } else {
+      //   await userRef.set({msgCount: (userData.msgCount || 0) + 1});
+      // }
     });
-
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
